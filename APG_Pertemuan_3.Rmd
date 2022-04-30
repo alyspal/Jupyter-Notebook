@@ -1,0 +1,112 @@
+---
+title: "APG Pertemuan-3"
+author: "Riofebri Prasetia"
+date: "3/3/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Library dan Dataset
+
+### Library
+```{r library}
+library('MVN')
+library('mvoutlier')
+library('evd')
+library('RVAideMemoire')
+```
+
+### Dataset
+```{r}
+url <- "https://raw.githubusercontent.com/rii92/tugas-APG/main/6%20maret%202022/tugas%20ketiga%20APG.csv"
+data1<-read.csv(url)
+data1
+```
+
+## Deteksi Outlier dengan Beberapa Metode
+
+### Scatter Plot Bivariate
+```{r}
+pairs(data1)
+```
+
+### Chi-square Plot
+```{r}
+chiplot(data1)
+```
+
+```{r}
+chisq.plot(data1)
+```
+
+### Q-Q Plot Univariate
+```{r}
+qqnorm(data1$Fuel.x1.)
+```
+
+```{r}
+qqnorm(data1$Repair.x2.)
+```
+
+```{r}
+qqnorm(data1$Capital.x3.)
+```
+
+
+## Uji Multivariate Normal dengan beberapa metode
+### Mardia’s MVN test:
+```{r}
+mvn(data1, mvnTest = 'mardia', showOutliers = TRUE)
+```
+
+### Henze-Zirkler’s MVN test:
+```{r}
+mvn(data1, showOutliers = TRUE)
+```
+
+### Royston’s MVN test:
+```{r}
+mvn(data1, mvnTest = 'royston', showOutliers = TRUE)
+```
+
+### E-Statistics Test:
+```{r}
+mvn(data1, mvnTest = 'energy')
+```
+
+### Shapiro-Wilk Test:
+```{r}
+mshapiro.test(data1)
+```
+
+## Lakukan hapus jika ada outlier, transformasi dan test multivariate normal
+```{r}
+Q1 <- quantile(data1$Fuel.x1., .25)
+Q3 <- quantile(data1$Fuel.x1., .75)
+IQR <- (Q3 - Q1)
+
+upper_bound <- Q3 + (IQR * 1.5)
+lower_bound <- Q1 - (IQR * 1.5)
+
+eliminated <- subset(data1, data1$Fuel.x1. > lower_bound & data1$Fuel.x1. < upper_bound)
+
+eliminated
+
+```
+
+```{r}
+mvn(eliminated, mvnTest = 'mardia', showOutliers = TRUE)
+```
+
+```{r}
+datatransf <- (data1*10)^(1/5)
+mvn(datatransf, mvnTest = 'mardia', showOutliers = TRUE)
+#datatransf
+```
+
+```{r}
+pairs(datatransf)
+```
